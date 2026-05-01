@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, Smartphone, Share, PlusSquare, X } from "lucide-react";
+import { Download, Smartphone, Share, PlusSquare, X, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function PWAInstallPrompt() {
@@ -9,30 +9,52 @@ export default function PWAInstallPrompt() {
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string>("");
 
   useEffect(() => {
-    // Check if already installed
-    if (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone) {
-      setIsStandalone(true);
-    }
+    // 1. Check Standalone mode
+    const isStandaloneMode = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone;
+    setIsStandalone(!!isStandaloneMode);
 
-    // Detect iOS
+    // 2. Detect iOS
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
     setIsIOS(isIOSDevice);
 
-    // Capture beforeinstallprompt for Android/Chrome
+    // 3. Register Service Worker Manually (Extra Safety)
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js").then(
+          (registration) => {
+            console.log("SW registered:", registration.scope);
+          },
+          (err) => {
+            console.log("SW registration failed:", err);
+          }
+        );
+      });
+    }
+
+    // 4. Capture beforeinstallprompt
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      setDebugInfo("PWA Ready to install");
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
+    // Fallback debug info
+    setTimeout(() => {
+      if (!isStandaloneMode && !isIOSDevice && !deferredPrompt) {
+        setDebugInfo("Menunggu respon browser...");
+      }
+    }, 3000);
+
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     };
-  }, []);
+  }, [deferredPrompt]);
 
   const handleInstallClick = async () => {
     if (isIOS) {
@@ -41,7 +63,7 @@ export default function PWAInstallPrompt() {
     }
 
     if (!deferredPrompt) {
-      alert("Browser Anda belum mendeteksi aplikasi sebagai PWA. Pastikan koneksi stabil dan gunakan Chrome/Edge.");
+      alert("Browser belum memberikan izin instalasi. Pastikan:\n1. Gunakan Chrome/Edge\n2. Bukan mode Samaran (Incognito)\n3. Tunggu beberapa detik lalu segarkan halaman.");
       return;
     }
 
@@ -58,7 +80,15 @@ export default function PWAInstallPrompt() {
   return (
     <>
       <div className="px-5 mt-6">
-        <h2 className="text-[15px] font-black text-gray-900 mb-3">Aplikasi Kelar</h2>
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-[15px] font-black text-gray-900">Aplikasi Kelar</h2>
+          {debugInfo && (
+            <span className="text-[9px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <Info size={10} /> {debugInfo}
+            </span>
+          )}
+        </div>
+        
         <button 
           onClick={handleInstallClick}
           className="w-full bg-primary text-white p-4 rounded-2xl flex items-center gap-4 shadow-lg shadow-primary/20 active:scale-[0.98] transition-transform"

@@ -1,13 +1,13 @@
 {
+  "id": "/",
   "name": "KELAR - Financial Tracker",
   "short_name": "KELAR",
   "description": "Ketik atau Foto. Kelar. Pelacak keuangan pintar dengan AI.",
   "theme_color": "#2A9D8F",
   "background_color": "#1a1a2e",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "standalone"],
   "orientation": "portrait",
-  "start_url": "/",
+  "start_url": "/?utm_source=pwa",
   "scope": "/",
   "categories": ["finance", "productivity"],
   "icons": [
