@@ -10,18 +10,9 @@ export const metadata: Metadata = {
     title: "KELAR",
     statusBarStyle: "black-translucent",
   },
-  formatDetection: {
-    telephone: false,
-  },
   icons: {
-    icon: [
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
-    apple: [
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
-    ],
+    icon: "/icon-192.png",
+    apple: "/icon-192.png",
   },
 };
 
@@ -29,27 +20,28 @@ export const viewport: Viewport = {
   themeColor: "#2A9D8F",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="id">
       <head>
-        {/* Fallback tags for better PWA compatibility */}
+        {/* WAJIB biar browser detect */}
+        <link rel="manifest" href="/manifest.json" />
+
+        {/* iOS support */}
         <link rel="apple-touch-icon" href="/icon-192.png" />
-        <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
       </head>
-      <body className="antialiased min-h-screen font-sans bg-surface">
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
