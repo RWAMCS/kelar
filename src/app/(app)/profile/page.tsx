@@ -7,6 +7,7 @@ import { ElementType } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { getNameFromEmail } from '@/lib/utils';
+import PWAInstallPrompt from '@/components/kelar/PWAInstallPrompt';
 
 async function fetchUserProgress() {
   const supabase = createClient();
@@ -146,6 +147,9 @@ export default function ProfilePage() {
           ))}
         </div>
       </div>
+
+      {/* PWA Install Button */}
+      <PWAInstallPrompt />
 
       {/* Menu: Fitur */}
       <div className="px-5 mt-6">
